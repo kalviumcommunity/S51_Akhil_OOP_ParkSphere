@@ -9,7 +9,7 @@ private:
     int availableSpaces;
 
 public:
-    ParkingLot(int id, int spaces) : lotID(id), availableSpaces(spaces) {}
+    ParkingLot(int id = 0, int spaces = 0) : lotID(id), availableSpaces(spaces) {}
 
     void addSpaces(int spaces) {
         this->availableSpaces += spaces;
@@ -40,7 +40,7 @@ private:
     string licensePlate;
 
 public:
-    Car(int id, string plate) : carID(id), licensePlate(plate) {}
+    Car(int id = 0, string plate = "") : carID(id), licensePlate(plate) {}
 
     void display() const {
         cout << "Car ID: " << this->carID << "\n"
@@ -53,32 +53,40 @@ public:
 };
 
 int main() {
-    int lotID, initialSpaces;
-    int carID;
-    string licensePlate;
+    int numLots, numCars;
+    cin >> numLots;
+    ParkingLot* lots = new ParkingLot[numLots];
 
-    cin >> lotID >> initialSpaces;
-    ParkingLot* lot1 = new ParkingLot(lotID, initialSpaces);
+    for (int i = 0; i < numLots; ++i) {
+        int lotID, initialSpaces;
+        cin >> lotID >> initialSpaces;
+        lots[i] = ParkingLot(lotID, initialSpaces);
+    }
 
-    cin >> carID;
-    cin.ignore();
-    getline(cin, licensePlate);
-    Car* car1 = new Car(carID, licensePlate);
+    cin >> numCars;
+    Car* cars = new Car[numCars];
 
-    bool parked = lot1->parkCar();
+    for (int i = 0; i < numCars; ++i) {
+        int carID;
+        string licensePlate;
+        cin >> carID;
+        cin.ignore();
+        getline(cin, licensePlate);
+        cars[i] = Car(carID, licensePlate);
+    }
 
-    lot1->display();
-    car1->display();
-    cout << "Remaining Spaces: " << lot1->getAvailableSpaces() << "\n";
+    for (int i = 0; i < numLots; ++i) {
+        cout << "Parking Lot " << (i + 1) << " details:\n";
+        lots[i].display();
+    }
 
-    string newPlate;
-    cout << "Enter new license plate: ";
-    getline(cin, newPlate);
-    car1->updateLicensePlate(newPlate);
-    car1->display();
+    for (int i = 0; i < numCars; ++i) {
+        cout << "Car " << (i + 1) << " details:\n";
+        cars[i].display();
+    }
 
-    delete lot1;
-    delete car1;
+    delete[] lots;
+    delete[] cars;
 
     return 0;
 }
