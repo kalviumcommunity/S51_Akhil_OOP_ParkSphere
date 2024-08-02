@@ -12,12 +12,12 @@ public:
     ParkingLot(int id, int spaces) : lotID(id), availableSpaces(spaces) {}
 
     void addSpaces(int spaces) {
-        availableSpaces += spaces;
+        this->availableSpaces += spaces;
     }
 
     bool parkCar() {
-        if (availableSpaces > 0) {
-            availableSpaces--;
+        if (this->availableSpaces > 0) {
+            this->availableSpaces--;
             return true;
         } else {
             return false;
@@ -25,12 +25,12 @@ public:
     }
 
     void display() const {
-        cout << "Parking Lot ID: " << lotID << "\n"
-             << "Available Spaces: " << availableSpaces << "\n";
+        cout << "Parking Lot ID: " << this->lotID << "\n"
+             << "Available Spaces: " << this->availableSpaces << "\n";
     }
 
     int getAvailableSpaces() const {
-        return availableSpaces;
+        return this->availableSpaces;
     }
 };
 
@@ -43,12 +43,12 @@ public:
     Car(int id, string plate) : carID(id), licensePlate(plate) {}
 
     void display() const {
-        cout << "Car ID: " << carID << "\n"
-             << "License Plate: " << licensePlate << "\n";
+        cout << "Car ID: " << this->carID << "\n"
+             << "License Plate: " << this->licensePlate << "\n";
     }
 
     void updateLicensePlate(const string& newPlate) {
-        licensePlate = newPlate;
+        this->licensePlate = newPlate;
     }
 };
 
@@ -57,19 +57,28 @@ int main() {
     int carID;
     string licensePlate;
 
-    cin >> lotID >> initialSpaces;  
-    ParkingLot lot1(lotID, initialSpaces);
+    cin >> lotID >> initialSpaces;
+    ParkingLot* lot1 = new ParkingLot(lotID, initialSpaces);
 
-    cin >> carID;            
-    cin.ignore();                
-    getline(cin, licensePlate);     
-    Car car1(carID, licensePlate);
+    cin >> carID;
+    cin.ignore();
+    getline(cin, licensePlate);
+    Car* car1 = new Car(carID, licensePlate);
 
-    bool parked = lot1.parkCar();
+    bool parked = lot1->parkCar();
 
-    lot1.display();
-    car1.display();
-    cout << "Remaining Spaces: " << lot1.getAvailableSpaces() << "\n";
+    lot1->display();
+    car1->display();
+    cout << "Remaining Spaces: " << lot1->getAvailableSpaces() << "\n";
+
+    string newPlate;
+    cout << "Enter new license plate: ";
+    getline(cin, newPlate);
+    car1->updateLicensePlate(newPlate);
+    car1->display();
+
+    delete lot1;
+    delete car1;
 
     return 0;
 }
