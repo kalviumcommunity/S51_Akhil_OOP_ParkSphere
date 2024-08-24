@@ -55,6 +55,8 @@ public:
 int main() {
     int numLots, numCars;
     cin >> numLots;
+    
+    // Dynamic memory allocation for ParkingLot objects
     ParkingLot* lots = new ParkingLot[numLots];
 
     for (int i = 0; i < numLots; ++i) {
@@ -64,6 +66,8 @@ int main() {
     }
 
     cin >> numCars;
+
+    // Dynamic memory allocation for Car objects
     Car* cars = new Car[numCars];
 
     for (int i = 0; i < numCars; ++i) {
@@ -85,6 +89,8 @@ int main() {
         cars[i].display();
     }
 
+    // Deleting dynamically allocated memory
+    
     delete[] lots;
     delete[] cars;
 
