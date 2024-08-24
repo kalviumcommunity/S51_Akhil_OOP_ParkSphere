@@ -41,9 +41,13 @@ public:
              << "Available Spaces: " << this->availableSpaces << "\n";
     }
 
-    static void displayTotalParkingInfo() {
+    static void displayTotalParkingInfo() {  
         cout << "Total Parking Lots: " << totalParkingLots << "\n"
              << "Total Available Spaces: " << totalSpacesAvailable << "\n";
+    }
+
+    static int getTotalParkingLots() {  
+        return totalParkingLots;
     }
 };
 
@@ -54,7 +58,7 @@ class Car {
 private:
     int carID;
     string licensePlate;
-    static int totalCars;  // Static variable to track total number of Car objects
+    static int totalCars;
 
 public:
     Car(int id = 0, string plate = "") : carID(id), licensePlate(plate) {
@@ -75,7 +79,7 @@ public:
     }
 };
 
-int Car::totalCars = 0; 
+int Car::totalCars = 0;
 
 int main() {
     int numLots, numCars;
@@ -112,9 +116,10 @@ int main() {
         cars[i].display();
     }
 
-    // Display static information
     ParkingLot::displayTotalParkingInfo();
     Car::displayTotalCars();
+
+    cout << "The total number of parking lots is: " << ParkingLot::getTotalParkingLots() << endl;
 
     delete[] lots;
     delete[] cars;
