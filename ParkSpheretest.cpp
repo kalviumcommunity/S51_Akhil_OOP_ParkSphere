@@ -7,17 +7,29 @@ class ParkingLot {
 private:
     int lotID;
     int availableSpaces;
+    static int totalParkingLots;    
+    static int totalSpacesAvailable;   
 
 public:
-    ParkingLot(int id = 0, int spaces = 0) : lotID(id), availableSpaces(spaces) {}
+    ParkingLot(int id = 0, int spaces = 0) : lotID(id), availableSpaces(spaces) {
+        totalParkingLots++;
+        totalSpacesAvailable += spaces;
+    }
+
+    ~ParkingLot() {
+        totalParkingLots--;
+        totalSpacesAvailable -= availableSpaces;
+    }
 
     void addSpaces(int spaces) {
         this->availableSpaces += spaces;
+        totalSpacesAvailable += spaces;
     }
 
     bool parkCar() {
         if (this->availableSpaces > 0) {
             this->availableSpaces--;
+            totalSpacesAvailable--;
             return true;
         } else {
             return false;
@@ -29,34 +41,46 @@ public:
              << "Available Spaces: " << this->availableSpaces << "\n";
     }
 
-    int getAvailableSpaces() const {
-        return this->availableSpaces;
+    static void displayTotalParkingInfo() {
+        cout << "Total Parking Lots: " << totalParkingLots << "\n"
+             << "Total Available Spaces: " << totalSpacesAvailable << "\n";
     }
 };
+
+int ParkingLot::totalParkingLots = 0;   
+int ParkingLot::totalSpacesAvailable = 0; 
 
 class Car {
 private:
     int carID;
     string licensePlate;
+    static int totalCars;  // Static variable to track total number of Car objects
 
 public:
-    Car(int id = 0, string plate = "") : carID(id), licensePlate(plate) {}
+    Car(int id = 0, string plate = "") : carID(id), licensePlate(plate) {
+        totalCars++;
+    }
+
+    ~Car() {
+        totalCars--;
+    }
 
     void display() const {
         cout << "Car ID: " << this->carID << "\n"
              << "License Plate: " << this->licensePlate << "\n";
     }
 
-    void updateLicensePlate(const string& newPlate) {
-        this->licensePlate = newPlate;
+    static void displayTotalCars() {
+        cout << "Total Cars: " << totalCars << "\n";
     }
 };
+
+int Car::totalCars = 0; 
 
 int main() {
     int numLots, numCars;
     cin >> numLots;
-    
-    // Dynamic memory allocation for ParkingLot objects
+
     ParkingLot* lots = new ParkingLot[numLots];
 
     for (int i = 0; i < numLots; ++i) {
@@ -67,7 +91,6 @@ int main() {
 
     cin >> numCars;
 
-    // Dynamic memory allocation for Car objects
     Car* cars = new Car[numCars];
 
     for (int i = 0; i < numCars; ++i) {
@@ -89,8 +112,10 @@ int main() {
         cars[i].display();
     }
 
-    // Deleting dynamically allocated memory
-    
+    // Display static information
+    ParkingLot::displayTotalParkingInfo();
+    Car::displayTotalCars();
+
     delete[] lots;
     delete[] cars;
 
