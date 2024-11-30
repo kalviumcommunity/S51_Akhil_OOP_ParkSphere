@@ -14,6 +14,15 @@ public:
         cout << "Parking Lot ID: " << lotID << "\n"
              << "Available Spaces: " << availableSpaces << "\n";
     }
+
+    double calculateFee(double hours) const {
+        return hours * 5.0; 
+    }
+
+    double calculateFee(double hours, double discount) const {
+        double fee = hours * 5.0;
+        return fee - (fee * discount); 
+    }
 };
 
 class VIPParkingLot : public ParkingLot {
@@ -28,42 +37,24 @@ public:
         ParkingLot::display();
         cout << "VIP Services: " << vipServices << "\n";
     }
-};
 
-class ParkingManager {
-protected:
-    string managerName;
-
-public:
-    ParkingManager(string name) : managerName(name) {}
-
-    void displayManager() const {
-        cout << "Manager Name: " << managerName << "\n";
-    }
-};
-
-class ManagedVIPParkingLot : public VIPParkingLot, public ParkingManager {
-public:
-    ManagedVIPParkingLot(int id, int spaces, string services, string manager)
-        : VIPParkingLot(id, spaces, services), ParkingManager(manager) {}
-
-    void display() const {
-        VIPParkingLot::display();
-        displayManager();
+    double calculateFee(double hours) const override {
+        return hours * 10.0; 
     }
 };
 
 int main() {
     ParkingLot lot1(101, 50);
     VIPParkingLot vipLot1(201, 20, "Valet, EV Charging");
-    ManagedVIPParkingLot managedLot1(301, 10, "Private Lounge", "John Doe");
 
     cout << "Parking Lot Details:\n";
     lot1.display();
+    cout << "Parking Fee for 3 hours: " << lot1.calculateFee(3) << "\n";
+    cout << "Parking Fee for 3 hours with 10% discount: " << lot1.calculateFee(3, 0.1) << "\n";
+
     cout << "\nVIP Parking Lot Details:\n";
     vipLot1.display();
-    cout << "\nManaged VIP Parking Lot Details:\n";
-    managedLot1.display();
+    cout << "VIP Parking Fee for 3 hours: " << vipLot1.calculateFee(3) << "\n";
 
     return 0;
 }
