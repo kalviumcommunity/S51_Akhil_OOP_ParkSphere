@@ -1,81 +1,74 @@
 #include <iostream>
 #include <string>
-
 using namespace std;
 
-class ParkingLot {
+class BaseParkingLot {
+public:
+    virtual void display() const = 0;
+    virtual int getAvailableSpaces() const = 0;
+    virtual ~BaseParkingLot() = default;
+};
+
+class ParkingLot : public BaseParkingLot {
 private:
     int lotID;
     int availableSpaces;
     static int totalParkingLots;
-    static int totalSpacesAvailable;
 
 public:
     ParkingLot(int id = 0, int spaces = 0) : lotID(id), availableSpaces(spaces) {
         totalParkingLots++;
-        totalSpacesAvailable += spaces;
     }
 
     ~ParkingLot() {
         totalParkingLots--;
-        totalSpacesAvailable -= availableSpaces;
     }
 
-    // Accessor
-    int getLotID() const {
-        return lotID;
-    }
+    int getLotID() const { return lotID; }
+    int getAvailableSpaces() const override { return availableSpaces; }
 
-    // Mutator
-    void setLotID(int id) {
-        lotID = id;
-    }
-
-    // Accessor
-    int getAvailableSpaces() const {
-        return availableSpaces;
-    }
-
-    // Mutator 
+    void setLotID(int id) { lotID = id; }
     void setAvailableSpaces(int spaces) {
-        totalSpacesAvailable -= availableSpaces;
         availableSpaces = spaces;
-        totalSpacesAvailable += availableSpaces; 
     }
 
-    void addSpaces(int spaces) {
-        availableSpaces += spaces;
-        totalSpacesAvailable += spaces;
-    }
-
-    bool parkCar() {
-        if (availableSpaces > 0) {
-            availableSpaces--;
-            totalSpacesAvailable--;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    void display() const {
+    void display() const override {
         cout << "Parking Lot ID: " << lotID << "\n"
              << "Available Spaces: " << availableSpaces << "\n";
     }
 
     static void displayTotalParkingInfo() {
-        cout << "Total Parking Lots: " << totalParkingLots << "\n"
-             << "Total Available Spaces: " << totalSpacesAvailable << "\n";
-    }
-
-    // Static accessor 
-    static int getTotalParkingLots() {
-        return totalParkingLots;
+        cout << "Total Parking Lots: " << totalParkingLots << "\n";
     }
 };
 
 int ParkingLot::totalParkingLots = 0;
-int ParkingLot::totalSpacesAvailable = 0;
+
+class VIPParkingLot : public ParkingLot {
+private:
+    string vipServices;
+
+public:
+    VIPParkingLot(int id, int spaces, string services)
+        : ParkingLot(id, spaces), vipServices(services) {}
+
+    void display() const override {
+        ParkingLot::display();
+        cout << "VIP Services: " << vipServices << "\n";
+    }
+};
+
+class ParkingManager {
+public:
+    static bool parkCar(ParkingLot& lot) {
+        if (lot.getAvailableSpaces() > 0) {
+            int spaces = lot.getAvailableSpaces() - 1;
+            lot.setAvailableSpaces(spaces);
+            return true;
+        }
+        return false;
+    }
+};
 
 class Car {
 private:
@@ -84,7 +77,15 @@ private:
     static int totalCars;
 
 public:
-    Car(int id = 0, string plate = "") : carID(id), licensePlate(plate) {
+    Car(int id, string plate) : carID(id), licensePlate(plate) {
+        totalCars++;
+    }
+
+    Car(int id) : carID(id), licensePlate("Unknown") {
+        totalCars++;
+    }
+
+    Car() : carID(0), licensePlate("Unknown") {
         totalCars++;
     }
 
@@ -92,25 +93,11 @@ public:
         totalCars--;
     }
 
-    // Accessor
-    int getCarID() const {
-        return carID;
-    }
+    int getCarID() const { return carID; }
+    string getLicensePlate() const { return licensePlate; }
 
-    // Mutator
-    void setCarID(int id) {
-        carID = id;
-    }
-
-    // Accessor
-    string getLicensePlate() const {
-        return licensePlate;
-    }
-
-    // Mutator
-    void setLicensePlate(const string &plate) {
-        licensePlate = plate;
-    }
+    void setCarID(int id) { carID = id; }
+    void setLicensePlate(const string& plate) { licensePlate = plate; }
 
     void display() const {
         cout << "Car ID: " << carID << "\n"
@@ -124,48 +111,58 @@ public:
 
 int Car::totalCars = 0;
 
+class LuxuryCar : public Car {
+private:
+    string luxuryFeatures;
+
+public:
+    LuxuryCar(int id, string plate, string features)
+        : Car(id, plate), luxuryFeatures(features) {}
+
+    void display() const {
+        Car::display();
+        cout << "Luxury Features: " << luxuryFeatures << "\n";
+    }
+};
+
+class ElectricLuxuryCar : public LuxuryCar {
+private:
+    int batteryCapacity;
+
+public:
+    ElectricLuxuryCar(int id, string plate, string features, int capacity)
+        : LuxuryCar(id, plate, features), batteryCapacity(capacity) {}
+
+    void display() const {
+        LuxuryCar::display();
+        cout << "Battery Capacity: " << batteryCapacity << " kWh\n";
+    }
+};
+
 int main() {
-    int numLots, numCars;
-    cin >> numLots;
-    ParkingLot* lots = new ParkingLot[numLots];
+    VIPParkingLot vipLot1(101, 50, "Valet, Car Wash");
+    VIPParkingLot vipLot2(102, 30, "Valet, EV Charging");
 
-    for (int i = 0; i < numLots; ++i) {
-        int lotID, initialSpaces;
-        cin >> lotID >> initialSpaces;
-        lots[i].setLotID(lotID);
-        lots[i].setAvailableSpaces(initialSpaces);
-    }
+    Car car1(1, "ABC-123");
+    Car car2(2);
+    Car car3;
 
-    cin >> numCars;
-    Car* cars = new Car[numCars];
+    ElectricLuxuryCar electricCar1(3, "LMN-456", "Heated Seats", 85);
 
-    for (int i = 0; i < numCars; ++i) {
-        int carID;
-        string licensePlate;
-        cin >> carID;
-        cin.ignore(5);
-        getline(cin, licensePlate);
-        cars[i].setCarID(carID);
-        cars[i].setLicensePlate(licensePlate);
-    }
+    cout << "VIP Parking Lot Details:\n";
+    vipLot1.display();
+    vipLot2.display();
 
-    for (int i = 0; i < numLots; ++i) {
-        cout << "Parking Lot " << (i + 1) << " details:\n";
-        lots[i].display();
-    }
+    cout << "\nCar Details:\n";
+    car1.display();
+    car2.display();
+    car3.display();
 
-    for (int i = 0; i < numCars; ++i) {
-        cout << "Car " << (i + 1) << " details:\n";
-        cars[i].display();
-    }
+    cout << "\nElectric Luxury Car Details:\n";
+    electricCar1.display();
 
     ParkingLot::displayTotalParkingInfo();
     Car::displayTotalCars();
-
-    cout << "The total number of parking lots is: " << ParkingLot::getTotalParkingLots() << endl;
-
-    delete[] lots;
-    delete[] cars;
 
     return 0;
 }
