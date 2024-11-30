@@ -10,18 +10,10 @@ protected:
 public:
     ParkingLot(int id = 0, int spaces = 0) : lotID(id), availableSpaces(spaces) {}
 
-    virtual void display() const {
-        cout << "Parking Lot ID: " << lotID << "\n"
-             << "Available Spaces: " << availableSpaces << "\n";
-    }
+    virtual void display() const = 0;
 
-    double calculateFee(double hours) const {
+    virtual double calculateFee(double hours) const {
         return hours * 5.0; 
-    }
-
-    double calculateFee(double hours, double discount) const {
-        double fee = hours * 5.0;
-        return fee - (fee * discount); 
     }
 };
 
@@ -34,8 +26,9 @@ public:
         : ParkingLot(id, spaces), vipServices(services) {}
 
     void display() const override {
-        ParkingLot::display();
-        cout << "VIP Services: " << vipServices << "\n";
+        cout << "Parking Lot ID: " << lotID << "\n"
+             << "Available Spaces: " << availableSpaces << "\n"
+             << "VIP Services: " << vipServices << "\n";
     }
 
     double calculateFee(double hours) const override {
@@ -43,18 +36,27 @@ public:
     }
 };
 
+class RegularParkingLot : public ParkingLot {
+public:
+    RegularParkingLot(int id, int spaces) : ParkingLot(id, spaces) {}
+
+    void display() const override {
+        cout << "Parking Lot ID: " << lotID << "\n"
+             << "Available Spaces: " << availableSpaces << "\n";
+    }
+};
+
 int main() {
-    ParkingLot lot1(101, 50);
-    VIPParkingLot vipLot1(201, 20, "Valet, EV Charging");
+    VIPParkingLot vipLot(101, 20, "Valet, Car Wash");
+    RegularParkingLot regularLot(102, 50);
 
-    cout << "Parking Lot Details:\n";
-    lot1.display();
-    cout << "Parking Fee for 3 hours: " << lot1.calculateFee(3) << "\n";
-    cout << "Parking Fee for 3 hours with 10% discount: " << lot1.calculateFee(3, 0.1) << "\n";
+    cout << "VIP Parking Lot Details:\n";
+    vipLot.display();
+    cout << "Parking Fee for 3 hours: " << vipLot.calculateFee(3) << "\n";
 
-    cout << "\nVIP Parking Lot Details:\n";
-    vipLot1.display();
-    cout << "VIP Parking Fee for 3 hours: " << vipLot1.calculateFee(3) << "\n";
+    cout << "\nRegular Parking Lot Details:\n";
+    regularLot.display();
+    cout << "Parking Fee for 3 hours: " << regularLot.calculateFee(3) << "\n";
 
     return 0;
 }
