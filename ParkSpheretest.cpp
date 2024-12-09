@@ -1,76 +1,50 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <memory>
 using namespace std;
 
-class FeeCalculator {
-public:
-    virtual double calculateFee(double hours) const = 0;
-};
-
-class RegularFeeCalculator : public FeeCalculator {
-public:
-    double calculateFee(double hours) const override {
-        return hours * 5.0;
-    }
-};
-
-class VIPFeeCalculator : public FeeCalculator {
-public:
-    double calculateFee(double hours) const override {
-        return hours * 10.0;
-    }
-};
-
-class EVFeeCalculator : public FeeCalculator {
-private:
-    double chargingRate;
-public:
-    EVFeeCalculator(double rate) : chargingRate(rate) {}
-    double calculateFee(double hours) const override {
-        return (hours * 8.0) + chargingRate;
-    }
-};
-
+// Abstract Base Class for Parking Lot
 class ParkingLot {
 protected:
     int lotID;
     int availableSpaces;
-    FeeCalculator* feeCalculator;
 
 public:
-    ParkingLot(int id, int spaces, FeeCalculator* calculator)
-        : lotID(id), availableSpaces(spaces), feeCalculator(calculator) {}
+    ParkingLot(int id = 0, int spaces = 0) : lotID(id), availableSpaces(spaces) {}
 
     virtual void display() const = 0;
 
-    double calculateFee(double hours) const {
-        return feeCalculator->calculateFee(hours);
+    virtual double calculateFee(double hours) const {
+        return hours * 5.0; 
     }
 
-    int getAvailableSpaces() const { return availableSpaces; }
-    void updateSpaces(int spaces) { availableSpaces = spaces; }
+    virtual ~ParkingLot() = default;
 };
 
+// Derived Class for VIP Parking Lot
 class VIPParkingLot : public ParkingLot {
 private:
     string vipServices;
 
 public:
-    VIPParkingLot(int id, int spaces, FeeCalculator* calculator, string services)
-        : ParkingLot(id, spaces, calculator), vipServices(services) {}
+    VIPParkingLot(int id, int spaces, string services)
+        : ParkingLot(id, spaces), vipServices(services) {}
 
     void display() const override {
         cout << "Parking Lot ID: " << lotID << "\n"
              << "Available Spaces: " << availableSpaces << "\n"
              << "VIP Services: " << vipServices << "\n";
     }
+
+    double calculateFee(double hours) const override {
+        return hours * 10.0; 
+    }
 };
 
+// Derived Class for Regular Parking Lot
 class RegularParkingLot : public ParkingLot {
 public:
-    RegularParkingLot(int id, int spaces, FeeCalculator* calculator)
-        : ParkingLot(id, spaces, calculator) {}
+    RegularParkingLot(int id, int spaces) : ParkingLot(id, spaces) {}
 
     void display() const override {
         cout << "Parking Lot ID: " << lotID << "\n"
@@ -78,54 +52,42 @@ public:
     }
 };
 
+// Derived Class for Electric Vehicle (EV) Parking Lot
 class EVParkingLot : public ParkingLot {
+private:
+    double chargingRate;
+
 public:
-    EVParkingLot(int id, int spaces, FeeCalculator* calculator)
-        : ParkingLot(id, spaces, calculator) {}
+    EVParkingLot(int id, int spaces, double rate)
+        : ParkingLot(id, spaces), chargingRate(rate) {}
 
     void display() const override {
         cout << "Parking Lot ID: " << lotID << "\n"
-             << "Available Spaces: " << availableSpaces << "\n";
-    }
-};
-
-class ParkingLotManager {
-private:
-    vector<ParkingLot*> parkingLots;
-
-public:
-    void addParkingLot(ParkingLot* lot) {
-        parkingLots.push_back(lot);
+             << "Available Spaces: " << availableSpaces << "\n"
+             << "Charging Rate: $" << chargingRate << " per hour\n";
     }
 
-    void displayAllLots() const {
-        for (const auto& lot : parkingLots) {
-            lot->display();
-            cout << endl;
-        }
+    double calculateFee(double hours) const override {
+        return hours * chargingRate; 
     }
 };
 
 int main() {
-    RegularFeeCalculator regularCalculator;
-    VIPFeeCalculator vipCalculator;
-    EVFeeCalculator evCalculator(2.0);
+    unique_ptr<ParkingLot> vipLot = make_unique<VIPParkingLot>(101, 20, "Valet, Car Wash");
+    unique_ptr<ParkingLot> regularLot = make_unique<RegularParkingLot>(102, 50);
+    unique_ptr<ParkingLot> evLot = make_unique<EVParkingLot>(103, 10, 7.5);
 
-    VIPParkingLot vipLot(101, 20, &vipCalculator, "Valet, Car Wash");
-    RegularParkingLot regularLot(102, 50, &regularCalculator);
-    EVParkingLot evLot(103, 10, &evCalculator);
+    cout << "VIP Parking Lot Details:\n";
+    vipLot->display();
+    cout << "Parking Fee for 3 hours: $" << vipLot->calculateFee(3) << "\n\n";
 
-    ParkingLotManager manager;
-    manager.addParkingLot(&vipLot);
-    manager.addParkingLot(&regularLot);
-    manager.addParkingLot(&evLot);
+    cout << "Regular Parking Lot Details:\n";
+    regularLot->display();
+    cout << "Parking Fee for 3 hours: $" << regularLot->calculateFee(3) << "\n\n";
 
-    cout << "Displaying All Parking Lots:\n";
-    manager.displayAllLots();
-
-    cout << "VIP Parking Fee for 3 hours: " << vipLot.calculateFee(3) << "\n";
-    cout << "Regular Parking Fee for 3 hours: " << regularLot.calculateFee(3) << "\n";
-    cout << "EV Parking Fee for 3 hours: " << evLot.calculateFee(3) << "\n";
+    cout << "EV Parking Lot Details:\n";
+    evLot->display();
+    cout << "Parking Fee for 3 hours: $" << evLot->calculateFee(3) << "\n";
 
     return 0;
 }
